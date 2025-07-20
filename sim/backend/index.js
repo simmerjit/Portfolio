@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors({
   origin: [
-    'https://portfolio-tau-orpin-42.vercel.app',
+    'https://simmerjit.vercel.app',
     'http://localhost:5173'
   ]
 }));
