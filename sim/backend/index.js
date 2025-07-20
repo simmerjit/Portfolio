@@ -11,7 +11,16 @@ import Project from "./db/Project.js";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+
+
+
+app.use(cors({
+  origin: [
+    'https://portfolio-tau-orpin-42.vercel.app',
+    'http://localhost:5173'
+  ]
+}));
+
 app.use(express.json());
 
 connectDB();
