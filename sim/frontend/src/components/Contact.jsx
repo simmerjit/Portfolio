@@ -25,9 +25,7 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND;
-     const response = await axios.post(`${process.env.REACT_APP_BACKEND}/contact`, form);
-
+      const response = await axios.post('process.env.Backend/contact', form);
       setStatus('Message sent! Check your email for confirmation.');
       setForm({ name: '', email: '', message: '' });
       

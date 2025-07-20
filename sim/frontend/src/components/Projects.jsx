@@ -10,8 +10,7 @@ const Projects = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const backendUrl = process.env.REACT_APP_BACKEND;
-        const res = await axios.get(`${backendUrl}/project`);
+        const res = await axios.get('https://portfolio-wotu.onrender.com/project');
         setProjects(res.data);
       } catch (error) {
         console.error("Error fetching projects:", error);
