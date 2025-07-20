@@ -1,0 +1,33 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+/* Define the custom font */
+@font-face {
+  font-family: "pricedown";
+  src: url("/pricedown.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Remove this global setting */
+/* html, body {
+  width: 100%;
+  height: 100%;
+  font-family: "pricedown", sans-serif;
+} */
+
+/* Apply Inter as default instead */
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: "Inter", sans-serif;
+}
+
+/* Create utility classes for specific fonts */
+.font-pricedown {
+  font-family: "pricedown", sans-serif;
+}
+
+.font-inter {
+  font-family: "Inter", sans-serif;
+}
