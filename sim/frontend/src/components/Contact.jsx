@@ -25,7 +25,7 @@ const Contact = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await axios.post('process.env.Backend/contact', form);
+      const response = await axios.post('https://portfolio-wotu.onrender.com/contact', form);
       setStatus('Message sent! Check your email for confirmation.');
       setForm({ name: '', email: '', message: '' });
       
