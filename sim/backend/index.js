@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
-import formData from "form-data";
-import Mailgun from "mailgun.js";
+import nodemailer from "nodemailer";
 import connectDB from "./db/config.js";
 import Project from "./db/Project.js";
 
@@ -21,19 +20,23 @@ app.use(express.json());
 /* -------------------- DB -------------------- */
 connectDB();
 
-/* -------------------- MAILGUN CLIENT -------------------- */
-const mailgun = new Mailgun(formData);
-
-const mg = mailgun.client({
-  username: "api",
-  key: process.env.MAILGUN_API_KEY,
-  url:
-    process.env.MAILGUN_REGION === "eu"
-      ? "https://api.eu.mailgun.net"
-      : "https://api.mailgun.net",
+/* -------------------- NODEMAILER (GMAIL) -------------------- */
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS, // App password
+  },
 });
 
-const MAILGUN_DOMAIN = process.env.MAILGUN_DOMAIN;
+/* Verify SMTP (important) */
+transporter.verify((err) => {
+  if (err) {
+    console.error("❌ Gmail SMTP error:", err);
+  } else {
+    console.log("✅ Gmail SMTP ready");
+  }
+});
 
 /* -------------------- PROJECT ROUTES -------------------- */
 app.post("/upload/project", async (req, res) => {
@@ -68,21 +71,21 @@ app.post("/contact", async (req, res) => {
       });
     }
 
-    await mg.messages.create(MAILGUN_DOMAIN, {
-      from: `Portfolio <mailgun@${MAILGUN_DOMAIN}>`,
-      to: ["simmerjits3@gmail.com"], // must be authorized in sandbox
+    await transporter.sendMail({
+      from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER,
       replyTo: email,
       subject: `New Contact Message from ${name}`,
-      text: `
-Name: ${name}
-Email: ${email}
-
-Message:
-${message}
+      html: `
+        <div style="font-family: Arial, sans-serif">
+          <h2>New Contact Form Submission</h2>
+          <p><b>Name:</b> ${name}</p>
+          <p><b>Email:</b> ${email}</p>
+          <p><b>Message:</b></p>
+          <p>${message}</p>
+        </div>
       `,
     });
-
-    console.log("✅ Mailgun email sent");
 
     res.status(200).json({
       success: true,
@@ -90,9 +93,9 @@ ${message}
     });
 
   } catch (error) {
-    console.error("❌ MAILGUN ERROR:", error);
+    console.error("❌ Nodemailer error:", error);
     res.status(500).json({
-      error: error.message,
+      error: "Failed to send message",
     });
   }
 });
