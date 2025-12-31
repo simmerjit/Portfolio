@@ -1,14 +1,12 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import express from "express";
 import cors from "cors";
-import nodemailer from "nodemailer";
+import formData from "form-data";
+import Mailgun from "mailgun.js";
 import connectDB from "./db/config.js";
 import Project from "./db/Project.js";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 
 /* -------------------- MIDDLEWARE -------------------- */
 app.use(cors({
@@ -23,24 +21,19 @@ app.use(express.json());
 /* -------------------- DB -------------------- */
 connectDB();
 
-/* -------------------- GMAIL NODEMAILER -------------------- */
-/*
-IMPORTANT:
-EMAIL_USER = your gmail address
-EMAIL_PASS = 16-character Gmail APP PASSWORD (not normal password)
-*/
+/* -------------------- MAILGUN (HARDCODED) -------------------- */
+const mailgun = new Mailgun(formData);
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
+const mg = mailgun.client({
+  username: "api",
+  key: "b6a8567599ceaa2be04e67b9478133c2-e61ae8dd-3986b9b5",
+  url: "https://api.mailgun.net", // change to https://api.eu.mailgun.net if EU
 });
 
-/* -------------------- ROUTES -------------------- */
+const MAILGUN_DOMAIN =
+  "sandbox7440a06316784293abe1b2416ddb8201.mailgun.org";
 
-/* PROJECT ROUTES */
+/* -------------------- PROJECT ROUTES -------------------- */
 app.post("/upload/project", async (req, res) => {
   try {
     const project = new Project(req.body);
@@ -60,8 +53,10 @@ app.get("/project", async (req, res) => {
   }
 });
 
-/* -------------------- CONTACT ROUTE (GMAIL SAFE) -------------------- */
+/* -------------------- CONTACT ROUTE (MAILGUN) -------------------- */
 app.post("/contact", async (req, res) => {
+  console.log("📩 /contact hit", req.body);
+
   try {
     const { name, email, message } = req.body;
 
@@ -71,21 +66,21 @@ app.post("/contact", async (req, res) => {
       });
     }
 
-    await transporter.sendMail({
-      from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER,   // ONLY send to yourself
-      replyTo: email,               // user email goes here
+    await mg.messages.create(MAILGUN_DOMAIN, {
+      from: `Portfolio <mailgun@${MAILGUN_DOMAIN}>`,
+      to: ["simmerjits3@gmail.com"], // MUST be authorized in Mailgun sandbox
+      replyTo: email,
       subject: `New Contact Message from ${name}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>New Contact Form Submission</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Message:</strong></p>
-          <p>${message}</p>
-        </div>
+      text: `
+Name: ${name}
+Email: ${email}
+
+Message:
+${message}
       `,
     });
+
+    console.log("✅ Mailgun email sent");
 
     res.status(200).json({
       success: true,
@@ -93,9 +88,9 @@ app.post("/contact", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Gmail error:", error);
+    console.error("❌ MAILGUN ERROR:", error);
     res.status(500).json({
-      error: "Failed to send message",
+      error: error.message,
     });
   }
 });
