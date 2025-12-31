@@ -67,32 +67,32 @@ app.get("/project", async (req, res) => {
 });
 
 /* -------------------- CONTACT ROUTE -------------------- */
-// Add detailed connection logging
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  debug: true, // Enable debug output
-  logger: true, // Log to console
-});
-
-// Better verification
-transporter.verify((err, success) => {
-  if (err) {
-    console.error("❌ SMTP Connection Failed");
-    console.error("Error:", err.message);
-    console.error("Code:", err.code);
-    console.error("EMAIL_USER set?", !!process.env.EMAIL_USER);
-    console.error("EMAIL_PASS set?", !!process.env.EMAIL_PASS);
-  } else {
-    console.log("✅ SMTP Ready:", success);
+app.get("/test-email", async (req, res) => {
+  try {
+    console.log("Testing email configuration...");
+    console.log("EMAIL_USER:", process.env.EMAIL_USER ? "✅ Set" : "❌ Missing");
+    console.log("EMAIL_PASS:", process.env.EMAIL_PASS ? "✅ Set" : "❌ Missing");
+    
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: process.env.EMAIL_USER,
+      subject: "Test Email from Render",
+      text: "If you receive this, email is working!",
+    });
+    
+    res.json({ 
+      success: true, 
+      message: "Test email sent!",
+      messageId: info.messageId 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      code: error.code 
+    });
   }
 });
-
 
 
 app.post("/contact", async (req, res) => {
