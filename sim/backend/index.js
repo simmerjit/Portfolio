@@ -23,14 +23,18 @@ app.use(express.json());
 /* -------------------- DB -------------------- */
 connectDB();
 
-/* -------------------- BREVO SMTP -------------------- */
+/* -------------------- GMAIL NODEMAILER -------------------- */
+/*
+IMPORTANT:
+EMAIL_USER = your gmail address
+EMAIL_PASS = 16-character Gmail APP PASSWORD (not normal password)
+*/
+
 const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,
+  service: "gmail",
   auth: {
-    user: process.env.BREVO_USER, // e.g. 9f0e45001@smtp-brevo.com
-    pass: process.env.BREVO_PASS, // Brevo SMTP key
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
@@ -56,7 +60,7 @@ app.get("/project", async (req, res) => {
   }
 });
 
-/* -------------------- CONTACT ROUTE -------------------- */
+/* -------------------- CONTACT ROUTE (GMAIL SAFE) -------------------- */
 app.post("/contact", async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -67,15 +71,14 @@ app.post("/contact", async (req, res) => {
       });
     }
 
-    /* ---------- EMAIL TO YOU ---------- */
     await transporter.sendMail({
-      from: "Portfolio <simmerjits3@gmail.com>", // MUST be verified in Brevo
-      to: "simmerjits3@gmail.com",
-      replyTo: email,
-      subject: `New Contact Form Message from ${name}`,
+      from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER,   // ONLY send to yourself
+      replyTo: email,               // user email goes here
+      subject: `New Contact Message from ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="border-bottom: 2px solid #007bff;">New Contact Form Submission</h2>
+          <h2>New Contact Form Submission</h2>
           <p><strong>Name:</strong> ${name}</p>
           <p><strong>Email:</strong> ${email}</p>
           <p><strong>Message:</strong></p>
@@ -84,36 +87,15 @@ app.post("/contact", async (req, res) => {
       `,
     });
 
-    /* ---------- AUTO-REPLY (SAFE, NON-BLOCKING) ---------- */
-    try {
-      await transporter.sendMail({
-        from: "Portfolio <simmerjits3@gmail.com>",
-        to: email,
-        subject: "Thank you for reaching out!",
-        html: `
-          <p>Hi ${name},</p>
-          <p>Thank you for contacting me. I’ve received your message and will get back to you within 24–48 hours.</p>
-          <p><strong>Your message:</strong></p>
-          <em>"${message}"</em>
-          <p><br>Best regards,<br><strong>Simmerjit Singh Sethi</strong></p>
-        `,
-      });
-    } catch (autoErr) {
-      console.warn("⚠️ Auto-reply failed:", autoErr.message);
-      // IMPORTANT: we do NOT fail the request if auto-reply fails
-    }
-
-    console.log(`📧 Contact form submission from ${name} (${email})`);
-
     res.status(200).json({
       success: true,
       message: "Message sent successfully!",
     });
 
   } catch (error) {
-    console.error("❌ Brevo email error:", error);
+    console.error("❌ Gmail error:", error);
     res.status(500).json({
-      error: "Failed to send message. Please try again later.",
+      error: "Failed to send message",
     });
   }
 });
