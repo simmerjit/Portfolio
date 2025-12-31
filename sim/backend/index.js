@@ -26,19 +26,27 @@ app.use(express.json());
 connectDB();
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    pass: process.env.EMAIL_PASS, // Gmail APP password
   },
+  tls: {
+    rejectUnauthorized: false,
+  },
+  connectionTimeout: 20000,
+  greetingTimeout: 20000,
+  socketTimeout: 20000,
 });
 
 // Test the connection
-transporter.verify((error, success) => {
+transporter.verify((error) => {
   if (error) {
-    console.log('❌ Email configuration error:', error);
+    console.log("❌ Gmail SMTP error:", error);
   } else {
-    console.log('✅ Email server is ready');
+    console.log("✅ Gmail SMTP ready");
   }
 });
 
