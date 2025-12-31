@@ -26,22 +26,22 @@ app.use(express.json());
 connectDB();
 
 // Nodemailer configuration - FIXED METHOD NAME
-const transporter = nodemailer.createTransport({  // ✅ Fixed: createTransport (not createTransporter)
-  service: 'gmail',
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // MUST be false for 587
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  tls: {
+    rejectUnauthorized: false,
+  },
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 });
 
-// Test the connection
-transporter.verify((error, success) => {
-  if (error) {
-    console.log('❌ Email configuration error:', error);
-  } else {
-    console.log('✅ Email server is ready');
-  }
-});
 
 // Existing project routes
 app.post('/upload/project', async (req, res) => {
