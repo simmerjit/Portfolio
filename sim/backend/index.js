@@ -25,29 +25,15 @@ app.use(express.json());
 
 connectDB();
 
-console.log("EMAIL_USER:", process.env.EMAIL_USER);
-console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
-
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // 16-char app password (NO spaces)
+    user: "simmerjits3@gmail.com",
+    pass: "qpjmseiqmvxpmmic", // ❌ TEMP ONLY
   },
-  connectionTimeout: 10000,
-  socketTimeout: 10000,
+  connectionTimeout: 8000,
+  socketTimeout: 8000,
 });
-
-/* Verify SMTP */
-(async () => {
-  try {
-    await transporter.verify();
-    console.log("✅ Gmail SMTP ready");
-  } catch (err) {
-    console.error("❌ Gmail SMTP error:", err);
-  }
-})();
-
 
 
 // Existing project routes
