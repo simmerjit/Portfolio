@@ -28,8 +28,8 @@ connectDB();
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "simmerjits3@gmail.com",
-    pass: "qpjmseiqmvxpmmic", // ❌ TEMP ONLY
+    user: "bunnyshing43@gmail.com",
+    pass: "sxithguggtbymoat", // ❌ TEMP ONLY
   },
   connectionTimeout: 8000,
   socketTimeout: 8000,
