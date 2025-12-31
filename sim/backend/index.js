@@ -22,22 +22,17 @@ connectDB();
 
 /* -------------------- NODEMAILER (GMAIL) -------------------- */
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // true for 465, false for other ports
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // App password
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: {
+    rejectUnauthorized: true,
   },
 });
-
-/* Verify SMTP (important) */
-transporter.verify((err) => {
-  if (err) {
-    console.error("❌ Gmail SMTP error:", err);
-  } else {
-    console.log("✅ Gmail SMTP ready");
-  }
-});
-
 /* -------------------- PROJECT ROUTES -------------------- */
 app.post("/upload/project", async (req, res) => {
   try {
