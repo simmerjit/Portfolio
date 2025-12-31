@@ -26,13 +26,13 @@ app.use(express.json());
 connectDB();
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false,
   auth: {
-    user: "bunnyshing43@gmail.com",
-    pass: "sxithguggtbymoat", // ❌ TEMP ONLY
+    user: "9f0e45001@smtp-brevo.com",
+    pass: "aSm1PrNkhyscqFfZ",
   },
-  connectionTimeout: 8000,
-  socketTimeout: 8000,
 });
 
 
