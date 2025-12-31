@@ -21,17 +21,30 @@ app.use(express.json());
 connectDB();
 
 /* -------------------- NODEMAILER (GMAIL) -------------------- */
+// Add detailed connection logging
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
-  secure: false, // true for 465, false for other ports
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  tls: {
-    rejectUnauthorized: true,
-  },
+  debug: true, // Enable debug output
+  logger: true, // Log to console
+});
+
+// Better verification
+transporter.verify((err, success) => {
+  if (err) {
+    console.error("❌ SMTP Connection Failed");
+    console.error("Error:", err.message);
+    console.error("Code:", err.code);
+    console.error("EMAIL_USER set?", !!process.env.EMAIL_USER);
+    console.error("EMAIL_PASS set?", !!process.env.EMAIL_PASS);
+  } else {
+    console.log("✅ SMTP Ready:", success);
+  }
 });
 /* -------------------- PROJECT ROUTES -------------------- */
 app.post("/upload/project", async (req, res) => {
@@ -54,6 +67,34 @@ app.get("/project", async (req, res) => {
 });
 
 /* -------------------- CONTACT ROUTE -------------------- */
+// Add detailed connection logging
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  debug: true, // Enable debug output
+  logger: true, // Log to console
+});
+
+// Better verification
+transporter.verify((err, success) => {
+  if (err) {
+    console.error("❌ SMTP Connection Failed");
+    console.error("Error:", err.message);
+    console.error("Code:", err.code);
+    console.error("EMAIL_USER set?", !!process.env.EMAIL_USER);
+    console.error("EMAIL_PASS set?", !!process.env.EMAIL_PASS);
+  } else {
+    console.log("✅ SMTP Ready:", success);
+  }
+});
+
+
+
 app.post("/contact", async (req, res) => {
   console.log("➡️ /contact hit", req.body);
 
