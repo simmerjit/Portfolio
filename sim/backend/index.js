@@ -55,43 +55,39 @@ app.get("/project", async (req, res) => {
 
 /* -------------------- CONTACT ROUTE (MAILGUN) -------------------- */
 app.post("/contact", async (req, res) => {
-  console.log("📩 /contact hit", req.body);
+  console.log("➡️ /contact hit");
+  console.log("BODY:", req.body);
 
   try {
     const { name, email, message } = req.body;
 
     if (!name || !email || !message) {
-      return res.status(400).json({
-        error: "Please provide name, email, and message",
-      });
+      console.log("❌ Missing fields");
+      return res.status(400).json({ error: "Missing fields" });
     }
 
-    await mg.messages.create(MAILGUN_DOMAIN, {
+    console.log("⏳ Sending Mailgun message...");
+    console.log("DOMAIN:", MAILGUN_DOMAIN);
+
+    const result = await mg.messages.create(MAILGUN_DOMAIN, {
       from: `Portfolio <mailgun@${MAILGUN_DOMAIN}>`,
-      to: ["simmerjits3@gmail.com"], // MUST be authorized in Mailgun sandbox
+      to: ["simmerjits3@gmail.com"],
       replyTo: email,
-      subject: `New Contact Message from ${name}`,
-      text: `
-Name: ${name}
-Email: ${email}
-
-Message:
-${message}
-      `,
+      subject: `DEBUG TEST from ${name}`,
+      text: message,
     });
 
-    console.log("✅ Mailgun email sent");
+    console.log("✅ Mailgun success:", result);
 
-    res.status(200).json({
-      success: true,
-      message: "Message sent successfully!",
-    });
+    res.status(200).json({ success: true });
 
-  } catch (error) {
-    console.error("❌ MAILGUN ERROR:", error);
-    res.status(500).json({
-      error: error.message,
-    });
+  } catch (err) {
+    console.error("🔥 MAILGUN ERROR FULL OBJECT:", err);
+    console.error("🔥 MAILGUN ERROR MESSAGE:", err.message);
+    console.error("🔥 MAILGUN ERROR STATUS:", err.status);
+    console.error("🔥 MAILGUN ERROR DETAILS:", err.details);
+
+    res.status(500).json({ error: err.message });
   }
 });
 
