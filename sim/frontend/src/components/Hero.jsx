@@ -8,7 +8,7 @@ const containerVariants = {
         x: 0,
         transition: {
             duration: 0.5,
-            staggerChildren: 0.15, // faster, smoother stagger
+            staggerChildren: 0.15,
             ease: "easeOut"
         }
     }
@@ -24,6 +24,9 @@ const childVariants = {
 }
 
 const Hero = () => {
+
+    const [imageLoaded, setImageLoaded] = React.useState(false);
+
     return (
         <div className='pb-4 lg:mb-36 text-white'>
             <div className='flex flex-wrap lg:flex-row-reverse'>
@@ -34,10 +37,11 @@ const Hero = () => {
                         <motion.img 
                             src="/sim.jpg"
                             alt="Simmerjit Singh Sethi"
+                            onLoad={() => setImageLoaded(true)}
                             className='h-[20rem] sm:h-[25rem] lg:h-[30rem] rounded-3xl mt-6 border-2 border-stone-300 shadow-2xl object-cover grayscale hover:grayscale-0 transition-all duration-500'
                             initial={{ opacity: 0, x: 50 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.6, delay: 0.25, ease: "easeOut" }}
+                            animate={imageLoaded ? { opacity: 1, x: 0 } : {}}
+                            transition={{ duration: 0.6, ease: "easeOut" }}
                         />
                     </div>
                 </div>
@@ -47,7 +51,7 @@ const Hero = () => {
                     className='w-full lg:w-1/2'
                     variants={containerVariants}
                     initial="hidden"
-                    animate="visible"
+                    animate={imageLoaded ? "visible" : "hidden"}
                 >
                     <div className='flex flex-col items-center lg:items-start mt-10 px-4 lg:px-8'>
                         
